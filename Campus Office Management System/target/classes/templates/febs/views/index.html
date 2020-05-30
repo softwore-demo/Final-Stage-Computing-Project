@@ -1,0 +1,131 @@
+<div class="layui-fluid layui-anim febs-anim-up" id="febs-index" lay-title="HomePage">
+    <div class="layui-row layui-col-space8 febs-container">
+        <div class="layui-col-md12 layui-col-sm12 layui-col-xs12">
+            <div align="center" class="layui-card">
+                <img data-th-src="@{febs/images/name.PNG}" style="margin: 0 auto">
+            </div>
+        </div>
+    </div>
+    <div class="layui-carousel" id="test2" style="margin: 10px; height: 260px;">
+        <div carousel-item>
+            <div>
+                <img data-th-src="@{febs/images/carousel/carousel1.jpg}" width="100%" />
+            </div>
+            <div>
+                <img data-th-src="@{febs/images/carousel/carousel2.jpg}" width="100%" />
+            </div>
+            <div>
+                <img data-th-src="@{febs/images/carousel/carousel3.jpg}" width="100%" />
+            </div>
+        </div>
+    </div>
+    <div style="padding: 20px; background-color: #F2F2F2;">
+        <div class="layui-row layui-col-space15" id="noti">
+
+        </div>
+    </div>
+</div>
+<script data-th-inline="javascript" type="text/javascript">
+    layui.use([ 'febs', 'jquery', 'util', 'carousel'], function () {
+        var $ = layui.jquery,
+            carousel = layui.carousel,
+            util = layui.util,
+            $view = $('#febs-index'),
+            febs = layui.febs;
+        carousel.render({
+            elem: '#test2'
+            ,interval: 1800
+            ,anim: 'fade'
+            ,width: '100%'
+            ,height: '260px'
+        });
+        initNotification();
+       function initNotification(){
+           console.info(JSON.stringify(notificationList))
+            console.info(notificationList.length)
+           for(var i=0;i<notificationList.length;i++){
+               var no = notificationList[i];
+               var ht = " <div class=\"layui-col-md3\">\n" +
+                   "                <div class=\"layui-card\">\n" +
+                   "                    <div class=\"layui-card-header\" >message title【"+no.title+"】</div>\n" +
+                   "                    <div class=\"layui-card-body\">message content<br>" +
+                   "\n" +no.content+
+                   "                    </div>\n" +
+                   "                </div>\n" +
+                   "            </div>\n";
+               $("#noti").append(ht);
+           }
+
+        }
+
+        febs.get(ctx + 'index/' + currentUser.username, null, function (r) {
+            handleSuccess(r.data);
+        });
+
+        function handleSuccess(data) {
+            var hour = new Date().getHours();
+            var time = hour < 6 ? 'good morning' : (hour <= 11 ? 'good morning' : (hour <= 13 ? 'good noon' : (hour <= 18 ? 'good afternoon' : 'good evening')));
+            var welcomeArr = [
+                'Have a coffee and have a rest☕',
+                'Do you want to play games with friends LOL',
+                'I wrote a few more bugs today',
+                'Did you blow water in the group today',
+                'What delicious food did you have today',
+                'Did you smile today😊',
+                'Did you help others today',
+                'What are you going to eat',
+                'Do you want to go to the cinema this weekend？'
+            ];
+            var index = Math.floor((Math.random() * welcomeArr.length));
+            var welcomeMessage = time + '，<a id="febs-index-user">' + currentUser.username + '</a>，' + welcomeArr[index];
+            $view.find('#today-ip').text(data.todayIp).end()
+                .find('#today-visit-count').text(data.todayVisitCount).end()
+                .find('#total-visit-count').text(data.totalVisitCount).end()
+                .find('#user-role').text(currentUser.roleName ? currentUser.roleName : 'No role').end()
+                .find('#last-login-time').text(currentUser.lastLoginTime ? currentUser.lastLoginTime : 'First access to the system').end()
+                .find('#welcome-message').html(welcomeMessage).end()
+                .find('#user-avatar').attr('src', ctx + "febs/images/avatar/" + currentUser.avatar);
+
+            var currentTime = new Date().getTime();
+            var yourVisitCount = [];
+            var totalVisitCount = [];
+            var lastTenDays = [
+                util.toDateString(new Date(currentTime - 1000 * 9 * 86400), 'MM-dd'),
+                util.toDateString(new Date(currentTime - 1000 * 8 * 86400), 'MM-dd'),
+                util.toDateString(new Date(currentTime - 1000 * 7 * 86400), 'MM-dd'),
+                util.toDateString(new Date(currentTime - 1000 * 6 * 86400), 'MM-dd'),
+                util.toDateString(new Date(currentTime - 1000 * 5 * 86400), 'MM-dd'),
+                util.toDateString(new Date(currentTime - 1000 * 4 * 86400), 'MM-dd'),
+                util.toDateString(new Date(currentTime - 1000 * 3 * 86400), 'MM-dd'),
+                util.toDateString(new Date(currentTime - 1000 * 2 * 86400), 'MM-dd'),
+                util.toDateString(new Date(currentTime - 1000 * 86400), 'MM-dd'),
+                util.toDateString(new Date(currentTime), 'MM-dd')
+            ];
+
+
+            layui.each(lastTenDays, function (k, i) {
+                var contain = false;
+                layui.each(data.lastSevenUserVisitCount, function (key, item) {
+                    if (i === item.days) {
+                        yourVisitCount.push(item.count);
+                        contain = true;
+                    }
+                });
+                if (!contain) yourVisitCount.push(0);
+                contain = false;
+                layui.each(data.lastSevenVisitCount, function (key, item) {
+                    if (i === item.days) {
+                        totalVisitCount.push(item.count);
+                        contain = true;
+                    }
+                });
+                if (!contain) totalVisitCount.push(0);
+            });
+        }
+
+        $view.on('click', '#febs-index-user',function () {
+            febs.navigate("/user/profile");
+        })
+
+    });
+</script>

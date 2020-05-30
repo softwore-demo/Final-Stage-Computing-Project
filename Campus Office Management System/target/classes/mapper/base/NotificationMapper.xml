@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bysj.office.base.mapper.NotificationMapper">
+
+    <sql id="findNotificationDetailSql">
+        SELECT 	`id`,
+        `title`,
+        `content`,
+        `createtime`
+        FROM
+        `t_notification`
+        WHERE 1 = 1
+        <if test="notification.title != null and notification.title != ''">
+            AND title = #{notification.title}
+        </if>
+        <if test="notification.createtime != null and notification.createtime !=''">
+            And createtime &gt; #{notification.createtime}
+        </if>
+        GROUP BY
+        createtime
+    </sql>
+    <select id="findNotificationDetailPage" resultType="com.bysj.office.base.entity.Notification">
+        <include refid="findNotificationDetailSql"/>
+    </select>
+</mapper>

@@ -1,0 +1,39 @@
+{
+  "groups": [
+    {
+      "name": "febs",
+      "type": "com.bysj.office.common.properties.FebsProperties",
+      "sourceType": "com.bysj.office.common.properties.FebsProperties"
+    }
+  ],
+  "properties": [
+    {
+      "name": "febs.auto-open-browser",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.bysj.office.common.properties.FebsProperties",
+      "defaultValue": true
+    },
+    {
+      "name": "febs.code",
+      "type": "com.bysj.office.common.properties.ValidateCodeProperties",
+      "sourceType": "com.bysj.office.common.properties.FebsProperties"
+    },
+    {
+      "name": "febs.max-batch-insert-num",
+      "type": "java.lang.Integer",
+      "sourceType": "com.bysj.office.common.properties.FebsProperties",
+      "defaultValue": 1000
+    },
+    {
+      "name": "febs.shiro",
+      "type": "com.bysj.office.common.properties.ShiroProperties",
+      "sourceType": "com.bysj.office.common.properties.FebsProperties"
+    },
+    {
+      "name": "febs.swagger",
+      "type": "com.bysj.office.common.properties.SwaggerProperties",
+      "sourceType": "com.bysj.office.common.properties.FebsProperties"
+    }
+  ],
+  "hints": []
+}

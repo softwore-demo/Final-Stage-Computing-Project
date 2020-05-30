@@ -1,0 +1,72 @@
+<style>
+    #upload-add {
+        padding: 20px 25px 25px 0;
+    }
+    #upload-add .layui-treeSelect .ztree li a, .ztree li span {
+        margin: 0 0 2px 3px !important;
+    }
+    .layui-form-label{
+        width: 150px;
+    }
+    .layui-input-block {
+        margin-left: 230px;
+        min-height: 36px
+    }
+</style>
+<div class="layui-fluid" id="upload-add">
+    <form class="layui-form" action="" lay-filter="upload-add-form" enctype="multipart/form-data">
+        <div class="layui-form-item">
+            <label class="layui-form-label febs-form-item-require">file：</label>
+            <div class="layui-input-block">
+                <button type="button" class="layui-btn" id="test3"><i class="layui-icon"></i>Upload File</button>
+            </div>
+        </div>
+
+        <div class="layui-form-item layui-form-text">
+            <label class="layui-form-label ">description：</label>
+            <div class="layui-input-block">
+                <textarea name="content" maxlength="100" class="layui-textarea" id="mycontent"></textarea>
+            </div>
+        </div>
+        <div class="layui-form-item febs-hide">
+            <button class="layui-btn" lay-submit="" lay-filter="upload-add-form-submit" id="submit"></button>
+            <button type="reset" class="layui-btn" id="reset"></button>
+        </div>
+    </form>
+</div>
+
+<script>
+    layui.use(['febs', 'form',  'validate','upload'], function () {
+        var $ = layui.$,
+            febs = layui.febs,
+            layer = layui.layer,
+         upload = layui.upload,
+            form = layui.form,
+            $view = $('#upload-add'),
+            validate = layui.validate;
+
+        form.verify(validate);
+        form.render();
+        upload.render({
+            elem: '#test3'
+            ,url: 'upload'
+            ,accept: 'file'
+                ,auto: false,
+                bindAction: '#submit'
+            ,field:'file',
+            before: function () {
+                var info = $('#mycontent').val();
+                this.data = {
+                    description: info
+                }
+            }
+            ,done: function(res){
+                layer.closeAll();
+                febs.alert.success('New upload succeeded');
+                $('#febs-upload').find('#query').click();
+            }
+        });
+
+
+    });
+</script>

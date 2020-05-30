@@ -1,0 +1,27 @@
+package com.bysj.office.common.converter;
+
+import com.bysj.office.common.utils.DateUtil;
+import com.wuwenze.poi.convert.WriteConverter;
+import com.wuwenze.poi.exception.ExcelKitWriteConverterException;
+import lombok.extern.slf4j.Slf4j;
+
+import java.text.ParseException;
+
+
+@Slf4j
+public class TimeConverter implements WriteConverter {
+    @Override
+    public String convert(Object value) {
+        if (value == null)
+            return "";
+        else {
+            try {
+                return DateUtil.formatCSTTime(value.toString(), DateUtil.FULL_TIME_SPLIT_PATTERN);
+            } catch (ParseException e) {
+                String message = "date change fail";
+                log.error(message, e);
+                throw new ExcelKitWriteConverterException(message);
+            }
+        }
+    }
+}

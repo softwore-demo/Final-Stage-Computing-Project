@@ -1,0 +1,3 @@
+Description
+You need to configure maven and open the Redis cache server before running the project
+You need to create a database named campusofficemanagementsystem before running the sql file

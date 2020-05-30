@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bysj.office.base.mapper.CourseMapper">
+
+
+    <sql id="findCourseDetailSql">
+        SELECT 	`id`,
+        `time`,
+        `address`,
+        `description`,
+        `persons`
+        FROM
+       `t_course`
+        WHERE 1 = 1
+        <if test="course.address != null and course.address != ''">
+            AND address = #{course.address}
+        </if>
+        <if test="course.persons != null and course.persons != ''">
+            AND persons like #{course.persons}
+        </if>
+        <if test="course.time != null and course.time !=''">
+            And time &gt; #{course.time}
+        </if>
+        GROUP BY
+        time
+    </sql>
+    <select id="findCourseDetailPage" resultType="com.bysj.office.base.entity.Course">
+        <include refid="findCourseDetailSql"/>
+
+    </select>
+</mapper>

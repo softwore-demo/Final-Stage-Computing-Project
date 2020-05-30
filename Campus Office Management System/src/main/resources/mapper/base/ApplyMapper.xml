@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bysj.office.base.mapper.ApplyMapper">
+    <sql id="findApplyDetailSql">
+        SELECT 	`id`,
+        `name`,
+        `description`,
+        `time`,
+        `starttime`,
+        `endtime`,
+        `createtime`,
+        `status`,
+        `operatorid`
+        FROM
+          `t_apply`
+        WHERE 1 = 1
+        <if test="condMap.name != null and condMap.name != ''">
+            AND name like #{condMap.name}
+        </if>
+        <if test="condMap.status != null and condMap.status != ''">
+            AND status = #{condMap.status}
+        </if>
+        <if test="condMap.time != null and condMap.time !=''">
+            And create_time &gt; #{condMap.time}
+        </if>
+        <if test="condMap.operatorid != null and condMap.operatorid !=''">
+            And operatorid = #{condMap.operatorid}
+        </if>
+        GROUP BY
+        createtime
+    </sql>
+
+    <select id="findApplyDetailPage" parameterType="apply" resultType="apply">
+        <include refid="findApplyDetailSql"/>
+
+    </select>
+
+</mapper>

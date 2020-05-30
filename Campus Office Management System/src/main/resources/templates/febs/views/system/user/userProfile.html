@@ -1,0 +1,192 @@
+<style>
+    #febs-user-profile #user-profile, #febs-user-profile .user-profile-card {
+        display: inline-block;
+    }
+
+    #febs-user-profile #user-img, #febs-user-profile #user-info {
+        display: inline-block;
+        float: left;
+    }
+
+    #febs-user-profile #user-img img {
+        width: 7rem;
+        margin: 1rem;
+        border-radius: 50%;
+        cursor: pointer;
+    }
+
+    #febs-user-profile #user-info {
+        margin: .95rem 0 .95rem 1.2rem;
+    }
+
+    #febs-user-profile #user-info div {
+        margin: 3px 0;
+        max-width: 22rem;
+    }
+
+    #febs-user-profile #options-wrapper {
+        text-align: center;
+        margin-top: .5rem;
+    }
+
+    #febs-user-profile #update-user-info {
+        cursor: pointer;
+        margin-left: -1rem;
+    }
+
+    #febs-user-profile #options-wrapper a {
+        padding: 4px 6px;
+        color: rgba(0, 0, 0, 0.65);
+        border: 1px solid #d9d9d9;
+        border-radius: 2px;
+    }
+
+    #febs-user-profile #options-wrapper a:hover {
+        color: #40a9ff;
+        border-color: #40a9ff;
+    }
+
+    #febs-user-profile .layui-form-item {
+        margin-bottom: 0;
+    }
+</style>
+<div class="layui-fluid layui-anim febs-anim" id="febs-user-profile" lay-title="User Center">
+    <div class="layui-row layui-col-space8 febs-container">
+        <div class="layui-col-md6 layui-col-sm6 layui-col-xs12">
+            <div class="layui-card">
+                <div class="layui-card-header">user info</div>
+                <div class="layui-card-body user-profile-card">
+                    <div id="user-profile">
+                        <div id="user-img">
+                            <img alt="avatar" title="change avatar" data-th-src="@{febs/images/avatar/empty.jpg}">
+                            <div id="options-wrapper">
+                                <div id="update-user-info">
+                                    <a>
+                                        <span class="layui-icon layui-icon-setting"></span>
+                                        edit info
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <script type="text/html" template>
+                            <div id="user-info">
+                                <div><span class="layui-icon layui-icon-user"></span> username：
+                                    {{currentUser.username}}
+                                </div>
+                                <div><span class="layui-icon layui-icon-trophy"></span> role：
+                                    {{currentUser.roleName}}
+                                </div>
+
+
+                                <div><span class="layui-icon layui-icon-phone"></span> mobile：
+                                    {{currentUser.mobile?currentUser.mobile:'No phone information'}}
+                                </div>
+                                <div><span class="layui-icon layui-icon-mail"></span> email：
+                                    {{currentUser.email?currentUser.email:'No email information'}}
+                                </div>
+                                <div><span class="layui-icon layui-icon-read"></span> job title：
+                                    {{currentUser.description?currentUser.description:'No description information'}}
+                                </div>
+                            </div>
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-md6 layui-col-sm6 layui-col-xs12">
+            <div class="layui-card">
+                <div class="layui-card-header">system setting</div>
+                <div class="layui-card-body">
+                    <form class="layui-form" action="" lay-filter="system-setting-form">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label" style="width: 85px">Sidebar style：</label>
+                            <div class="layui-input-block">
+                                <input type="radio" name="theme" lay-filter="theme" value="black" checked="" title="black">
+                                <input type="radio" name="theme" lay-filter="theme" value="white" title="white">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label" style="width: 85px">Tab switch：</label>
+                            <div class="layui-input-block">
+                                <input type="radio" name="isTab" lay-filter="tab" value="1" checked="" title="open">
+                                <input type="radio" name="isTab" lay-filter="tab" value="0" title="close">
+                            </div>
+                        </div>
+                        <button class="febs-hide" lay-submit="" lay-filter="system-setting-form-submit"
+                                id="submit-form"></button>
+                    </form>
+                </div>
+                <div class="layui-card-footer">
+                    <button class="layui-btn" id="submit">save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script data-th-inline="none" type="text/javascript">
+    layui.use(['jquery', 'form', 'febs'], function () {
+        var $ = layui.jquery,
+            febs = layui.febs,
+            form = layui.form,
+            _currentData = {
+                theme: currentUser.theme,
+                isTab: currentUser.isTab
+            },
+            $view = $('#febs-user-profile');
+
+        form.render();
+        initSettings();
+
+        $view.find('#user-img img').attr('src', ctx + "febs/images/avatar/" + currentUser.avatar);
+        $view.on('click', '#update-user-info', function () {
+            febs.modal.view('edit user info', 'user/profile/update', {
+                area: $(window).width() <= 750 ? '90%' : '50%',
+                btn: ['sure'],
+                yes: function () {
+                    $('#profile-update').find('#submit').trigger('click');
+                }
+            });
+        });
+
+        $view.on('click', '#user-profile img', function () {
+            febs.modal.view('Click Change', 'user/avatar', {
+                area: $(window).width() <= 750 ? '90%' : '650px',
+                offset: '100px'
+            });
+        });
+
+        $view.on('click', '#submit', function () {
+            $view.find('#submit-form').trigger('click');
+        });
+
+        function initSettings() {
+            form.val("system-setting-form", _currentData);
+        }
+
+        form.on("radio(theme)", function (data) {
+            var $sidebar = $('#app-sidebar');
+            if (data.value === 'black') {
+                $sidebar.removeClass('febs-theme-white');
+            }
+            if (data.value === 'white') {
+                $sidebar.addClass('febs-theme-white');
+            }
+        });
+
+        form.on('submit(system-setting-form-submit)', function (data) {
+            if (febs.nativeEqual(data.field, _currentData)) {
+                febs.alert.warn('No modification of data');
+                return false;
+            }
+            febs.post(ctx + 'user/theme/update', data.field, function () {
+                _currentData = data.field;
+                febs.modal.confirm('update success','Do you want to refresh the page now？',function () {
+                    window.location.reload();
+                });
+            });
+            return false;
+        });
+
+
+    })
+</script>

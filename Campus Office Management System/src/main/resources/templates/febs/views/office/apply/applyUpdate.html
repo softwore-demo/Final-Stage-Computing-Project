@@ -1,0 +1,120 @@
+<style>
+    #apply-update {
+        padding: 20px 25px 25px 0;
+    }
+
+    #apply-update .layui-treeSelect .ztree li a, .ztree li span {
+        margin: 0 0 2px 3px !important;
+    }
+    .layui-form-label{
+        width: 150px;
+    }
+    .layui-input-block {
+        margin-left: 230px;
+        min-height: 36px
+    }
+</style>
+<div class="layui-fluid" id="apply-update">
+    <form class="layui-form" action="" lay-filter="apply-update-form">
+
+        <input type="hidden" name="id" data-th-value="${apply.id}">
+        <div class="layui-form-item">
+            <label class="layui-form-label febs-form-item-require">Name：</label>
+            <!--<div class="layui-input-block">
+                <input type="text" name="name" lay-verify="require" autocomplete="off" class="layui-input">
+            </div>-->
+            <div class="layui-input-block">
+                <select name="operatorid"
+                        lay-verify="required"
+                        xm-select-direction="down"
+                        xm-select="teachers"
+                        xm-select-skin="name">
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label febs-form-item-require">Attendance date：</label>
+            <div class="layui-input-block">
+                <input type="text" name="time" id="apply-createTime" placeholder="yyyy-MM-dd" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label febs-form-item-require">status：</label>
+            <div class="layui-input-block">
+                <select name="status">
+                    <option value=""></option>
+                    <option value="1">Attendance</option>
+                    <option value="2">Absenteeism</option>
+                    <option value="3">Leave</option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item febs-hide">
+            <button class="layui-btn" lay-submit="" lay-filter="apply-update-form-submit" id="submit"></button>
+        </div>
+    </form>
+</div>
+
+<script data-th-inline="javascript">
+    layui.use(['febs', 'form',  'validate','laydate','formSelects'], function () {
+        var $ = layui.$,
+            formSelects = layui.formSelects,
+            febs = layui.febs,
+            layer = layui.layer,
+            form = layui.form,
+            laydate = layui.laydate,
+            apply = [[${apply}]],
+            $view = $('#apply-update'),
+            validate = layui.validate;
+
+        form.verify(validate);
+        form.render();
+        laydate.render({
+            elem: '#apply-createTime'
+        });
+        initapplyValue();
+        function initapplyValue() {
+            form.val("apply-update-form", {
+                "name": apply.name,
+                "status": apply.status,
+                "time":apply.time
+            });
+        }
+
+        form.on('submit(apply-update-form-submit)', function (data) {
+            if (febs.nativeEqual(data.field, apply)) {
+                febs.alert.warn('No modification of data！');
+                return false;
+            }
+            febs.post(ctx + 'apply/update', data.field, function () {
+                layer.closeAll();
+                febs.alert.success(apply.id + ' apply data modified successfully');
+                $('#febs-apply').find('#query').click();
+            });
+            return false;
+        });
+        formSelects.render();
+        formSelects.config('teachers', {
+            searchUrl: ctx + 'user/teacher',
+            response: {
+                statusCode: 200
+            },
+            beforeSuccess: function (id, url, searchVal, result) {
+                var data = result.data;
+                var tranData = [];
+                for (var i = 0; i < data.length; i++) {
+                    tranData.push({
+                        name: data[i].name,
+                        value: data[i].userId
+                    })
+                }
+                result.data = tranData;
+                return result;
+            },
+            error: function (id, url, searchVal, err) {
+                console.error(err);
+                febs.alert.error('Failed to get role list');
+            }
+        });
+    });
+</script>

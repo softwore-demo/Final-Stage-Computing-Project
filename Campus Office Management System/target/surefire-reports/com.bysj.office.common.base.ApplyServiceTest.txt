@@ -1,0 +1,32 @@
+-------------------------------------------------------------------------------
+Test set: com.bysj.office.common.base.ApplyServiceTest
+-------------------------------------------------------------------------------
+Tests run: 5, Failures: 0, Errors: 2, Skipped: 0, Time elapsed: 23.49 s <<< FAILURE! - in com.bysj.office.common.base.ApplyServiceTest
+updateApply  Time elapsed: 0.179 s  <<< ERROR!
+org.springframework.jdbc.BadSqlGrammarException: 
+
+### Error querying database.  Cause: java.sql.SQLSyntaxErrorException: Unknown column 'job' in 'field list'
+### The error may exist in com/bysj/office/base/mapper/ApplyMapper.java (best guess)
+### The error may involve defaultParameterMap
+### The error occurred while setting parameters
+### SQL: SELECT id, createtime, name, endtime, description, time, starttime, job, operatorid, status FROM t_apply WHERE id = ?
+### Cause: java.sql.SQLSyntaxErrorException: Unknown column 'job' in 'field list'
+; bad SQL grammar []; nested exception is java.sql.SQLSyntaxErrorException: Unknown column 'job' in 'field list'
+	at com.bysj.office.common.base.ApplyServiceTest.updateApply(ApplyServiceTest.java:72)
+Caused by: java.sql.SQLSyntaxErrorException: Unknown column 'job' in 'field list'
+	at com.bysj.office.common.base.ApplyServiceTest.updateApply(ApplyServiceTest.java:72)
+
+createApply  Time elapsed: 0.124 s  <<< ERROR!
+org.springframework.jdbc.BadSqlGrammarException: 
+
+### Error updating database.  Cause: java.sql.SQLSyntaxErrorException: Unknown column 'job' in 'field list'
+### The error may exist in com/bysj/office/base/mapper/ApplyMapper.java (best guess)
+### The error may involve com.bysj.office.base.mapper.ApplyMapper.insert-Inline
+### The error occurred while setting parameters
+### SQL: INSERT INTO t_apply (name, endtime, description, time, starttime, job, status) VALUES (?, ?, ?, ?, ?, ?, ?)
+### Cause: java.sql.SQLSyntaxErrorException: Unknown column 'job' in 'field list'
+; bad SQL grammar []; nested exception is java.sql.SQLSyntaxErrorException: Unknown column 'job' in 'field list'
+	at com.bysj.office.common.base.ApplyServiceTest.createApply(ApplyServiceTest.java:61)
+Caused by: java.sql.SQLSyntaxErrorException: Unknown column 'job' in 'field list'
+	at com.bysj.office.common.base.ApplyServiceTest.createApply(ApplyServiceTest.java:61)
+

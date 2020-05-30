@@ -1,0 +1,230 @@
+<div class="layui-fluid layui-anim febs-anim" id="febs-apply" lay-title="Attendance">
+    <div class="layui-row febs-container">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-body febs-table-full">
+                    <form class="layui-form layui-table-form" lay-filter="apply-table-form">
+                        <div class="layui-row">
+                            <div class="layui-col-md10">
+                                <div class="layui-form-item">
+                                    <div class="layui-inline">
+                                        <label class="layui-form-label layui-form-label-sm">Name</label>
+                                        <div class="layui-input-inline">
+                                            <input type="text" name="name" autocomplete="off" class="layui-input">
+                                        </div>
+                                    </div>
+                                    <!--<div class="layui-inline">
+                                        <label class="layui-form-label layui-form-label-sm">Attendance date</label>
+                                        <div class="layui-input-inline">
+                                            <input type="text" name="time" id="apply-time" placeholder="yyyy-MM-dd" class="layui-input">
+                                        </div>
+                                    </div>
+                                    <div class="layui-inline">
+                                        <label class="layui-form-label layui-form-label-sm">Status</label>
+                                        <div class="layui-input-inline">
+                                            <select name="status">
+                                                <option value=""></option>
+                                                <option value="1">Attendance</option>
+                                                <option value="2">Absenteeism</option>
+                                                <option value="3">Leave</option>
+                                            </select>
+                                        </div>
+                                    </div>-->
+                                </div>
+                            </div>
+                            <div class="layui-col-md2 layui-col-sm12 layui-col-xs12 table-action-area">
+                                <div class="layui-btn layui-btn-sm layui-btn-primary table-action" id="query">
+                                    <i class="layui-icon">&#xe848;</i>
+                                </div>
+                                <div class="layui-btn layui-btn-sm layui-btn-primary table-action" id="reset">
+                                    <i class="layui-icon">&#xe79b;</i>
+                                </div>
+                                <div class="layui-btn layui-btn-sm layui-btn-primary table-action action-more">
+                                    <i class="layui-icon">&#xe875;</i>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <table lay-filter="applyTable" lay-data="{id: 'applyTable'}"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/html" id="apply-status">
+    {{#
+    var status = {
+    1: {title: 'Attendance', color: 'green'},
+    2: {title: 'Absenteeism', color: 'volcano'},
+    3: {title: 'Leave', color: 'orange'}
+    }[d.status];
+    }}
+    <span class="layui-badge febs-tag-{{status.color}}">{{ status.title }}</span>
+</script>
+
+<script type="text/html" id="apply-option">
+    <a lay-event="edit" ><i
+            class="layui-icon febs-edit-area febs-blue">&#xe7a4;</i></a>
+    <a lay-event="del" ><i class="layui-icon febs-edit-area febs-red">&#xe7f9;</i></a>
+</script>
+<script data-th-inline="none" type="text/javascript">
+    layui.use(['dropdown', 'jquery', 'form', 'table', 'febs', 'laydate'], function () {
+        var $ = layui.jquery,
+            febs = layui.febs,
+            form = layui.form,
+            laydate = layui.laydate,
+            table = layui.table,
+            dropdown = layui.dropdown,
+            $view = $('#febs-apply'),
+            $query = $view.find('#query'),
+            $reset = $view.find('#reset'),
+            $searchForm = $view.find('form'),
+            sortObject = {field: 'create Time', type: null},
+            tableIns
+
+        form.render();
+
+        initTable();
+
+        laydate.render({
+            elem: '#apply-time'
+        });
+
+        dropdown.render({
+            elem: $view.find('.action-more'),
+            click: function (name, elem, event) {
+                var checkStatus = table.checkStatus('applyTable');
+                if (name === 'add') {
+                    febs.modal.open('add attendance', 'office/apply/add', {
+                        btn: ['save', 'redo'],
+                        area: $(window).width() <= 750 ? '95%' : '50%',
+                        yes: function (index, layero) {
+                            $('#apply-add').find('#submit').trigger('click');
+                        },
+                        btn2: function () {
+                            $('#apply-add').find('#reset').trigger('click');
+                            return false;
+                        }
+                    });
+                }
+                if (name === 'delete') {
+                    if (!checkStatus.data.length) {
+                        febs.alert.warn('please choose the apply');
+                    } else {
+                        febs.modal.confirm('Delete apply', 'Do you want to delete the apply？', function () {
+                            var applyIds = [];
+                            layui.each(checkStatus.data, function (key, item) {
+                                applyIds.push(item.id)
+                            });
+                            deleteapplys(applyIds.join(','));
+                        });
+                    }
+                }
+
+            },
+            options: [{
+                name: 'add',
+                title: 'add attendance'
+            }, {
+                name: 'delete',
+                title: 'delete attendance'
+            }]
+        });
+
+
+        table.on('tool(applyTable)', function (obj) {
+            var data = obj.data,
+                layEvent = obj.event;
+            if (layEvent === 'del') {
+                febs.modal.confirm('Delete apply', 'Do you want to delete the apply？', function () {
+                    deleteapplys(data.id);
+                });
+            }
+            if (layEvent === 'edit') {
+                febs.modal.open('edit attendance', 'office/apply/update/' + data.id, {
+                    area: $(window).width() <= 750 ? '90%' : '50%',
+                    btn: ['save', 'cancel'],
+                    yes: function (index, layero) {
+                        $('#apply-update').find('#submit').trigger('click');
+                    },
+                    btn2: function () {
+                        layer.closeAll();
+                    }
+                });
+            }
+        });
+
+        table.on('sort(applyTable)', function (obj) {
+            sortObject = obj;
+            tableIns.reload({
+                initSort: obj,
+                where: $.extend(getQueryParams(), {
+                    field: obj.field,
+                    order: obj.type
+                })
+            });
+        });
+
+        $query.on('click', function () {
+            var params = $.extend(getQueryParams(), {field: sortObject.field, order: sortObject.type});
+            tableIns.reload({where: params, page: {curr: 1}});
+        });
+
+        $reset.on('click', function () {
+            $searchForm[0].reset();
+            tableIns.reload({where: getQueryParams(), page: {curr: 1}, initSort: sortObject});
+        });
+        function initTable() {
+            tableIns = febs.table.init({
+                elem: $view.find('table'),
+                id: 'applyTable',
+                url: ctx + 'apply/list',
+                cols: [[
+                    {type: 'checkbox'},
+                    {field: 'name', title: 'name', minWidth: 100},
+                    {field: 'time', title: 'attendance date', minWidth: 100,templet:'<div>{{ Format(d.time,"yyyy-MM-dd")}}</div>'},
+                    {title: 'status', templet: '#apply-status'},
+                    {title: 'operation', toolbar: '#apply-option', minWidth: 140}
+                ]]
+            });
+        }
+
+        function getQueryParams() {
+            return {
+                name: $searchForm.find('input[name="name"]').val().trim()
+            };
+        }
+
+        function deleteapplys(applyIds) {
+            febs.get(ctx + 'apply/delete/' + applyIds, null, function () {
+                febs.alert.success('Delete apply succeeded');
+                $query.click();
+            });
+        }
+    });
+    function Format(datetime,fmt) {
+        if (parseInt(datetime)==datetime) {
+            if (datetime.length==10) {
+                datetime=parseInt(datetime)*1000;
+            } else if(datetime.length==13) {
+                datetime=parseInt(datetime);
+            }
+        }
+        datetime=new Date(datetime);
+        var o = {
+            "M+" : datetime.getMonth()+1,
+            "d+" : datetime.getDate(),
+            "h+" : datetime.getHours(),
+            "m+" : datetime.getMinutes(),
+            "s+" : datetime.getSeconds(),
+            "q+" : Math.floor((datetime.getMonth()+3)/3),
+            "S"  : datetime.getMilliseconds()
+        };
+        if(/(y+)/.test(fmt))
+            fmt=fmt.replace(RegExp.$1, (datetime.getFullYear()+"").substr(4 - RegExp.$1.length));
+        for(var k in o)
+            if(new RegExp("("+ k +")").test(fmt))
+                fmt = fmt.replace(RegExp.$1, (RegExp.$1.length==1) ? (o[k]) : (("00"+ o[k]).substr((""+ o[k]).length)));
+        return fmt;
+    }
+</script>

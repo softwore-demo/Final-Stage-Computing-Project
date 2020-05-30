@@ -1,0 +1,87 @@
+<style>
+    #profile-update {
+        padding: 20px 25px 25px 0;
+    }
+
+    #profile-update .layui-treeSelect .ztree li a, .ztree li span {
+        margin: 0 0 2px 3px !important;
+    }
+</style>
+<div class="layui-fluid" id="profile-update">
+    <form class="layui-form" action="" lay-filter="profile-update-form">
+        <div class="layui-form-item">
+            <label class="layui-form-label febs-form-item-require">username：</label>
+            <div class="layui-input-block">
+                <input type="text" name="username" readonly class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label febs-form-item-require">mobile：</label>
+            <div class="layui-input-block">
+                <input type="tel" name="mobile" autocomplete="off" maxlength="11" minlength="11" lay-verify="range|phone"
+                       class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label febs-form-item-require">email：</label>
+            <div class="layui-input-block">
+                <input type="text" name="email" minlength="2" lay-verify="range|email"  autocomplete="off"
+                       class="layui-input">
+            </div>
+        </div>
+
+        <div class="layui-form-item layui-form-text">
+            <label class="layui-form-label febs-form-item-require">job title：</label>
+            <div class="layui-input-block">
+                <textarea name="description" minlength="2" maxlength="100" lay-verify="range" class="layui-textarea">
+                </textarea>
+            </div>
+        </div>
+        <div class="layui-form-item febs-hide">
+            <button class="layui-btn" lay-submit="" lay-filter="profile-update-form-submit" id="submit"></button>
+        </div>
+    </form>
+</div>
+
+<script data-th-inline="javascript">
+    layui.use(['febs', 'form', 'validate', 'treeSelect'], function () {
+        var $ = layui.$,
+            febs = layui.febs,
+            layer = layui.layer,
+            treeSelect = layui.treeSelect,
+            form = layui.form,
+            user = currentUser,
+            $view = $('#profile-update'),
+            validate = layui.validate;
+
+        form.verify(validate);
+        form.render();
+
+        initUserValue();
+
+
+        function initUserValue() {
+            form.val("profile-update-form", {
+                "username": user.username,
+                "mobile": user.mobile,
+                "email": user.email,
+                "sex": user.sex,
+                "description": user.description
+            });
+        }
+
+        form.on('submit(profile-update-form-submit)', function (data) {
+            if (febs.nativeEqual(data.field, user)) {
+                febs.alert.warn('No modification of data！');
+                return false;
+            }
+            febs.post(ctx + 'user/profile/update', data.field, function () {
+                layer.closeAll();
+                febs.modal.confirm('Modification succeeded','Do you want to refresh the page now？',function () {
+                    window.location.reload();
+                });
+            });
+            return false;
+        });
+    });
+</script>

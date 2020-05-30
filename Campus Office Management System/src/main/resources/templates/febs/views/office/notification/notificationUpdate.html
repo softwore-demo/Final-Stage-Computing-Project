@@ -1,0 +1,86 @@
+<style>
+    #notification-update {
+        padding: 20px 25px 25px 0;
+    }
+
+    #notification-update .layui-treeSelect .ztree li a, .ztree li span {
+        margin: 0 0 2px 3px !important;
+    }
+    .layui-form-label{
+        width: 150px;
+    }
+    .layui-input-block {
+        margin-left: 230px;
+        min-height: 36px
+    }
+</style>
+<div class="layui-fluid" id="notification-update">
+    <form class="layui-form" action="" lay-filter="notification-update-form">
+        <div class="layui-form-item febs-hide">
+            <label class="layui-form-label febs-form-item-require">id：</label>
+            <div class="layui-input-block">
+                <input type="text" name="id" data-th-value="${notification.id}">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label febs-form-item-require">title：</label>
+            <div class="layui-input-block">
+                <input type="text" name="title" minlength="2" maxlength="50" lay-verify="range|notificationname"
+                       autocomplete="off" class="layui-input">
+            </div>
+        </div>
+
+        <div class="layui-form-item layui-form-text">
+            <label class="layui-form-label febs-form-item-require">content：</label>
+            <div class="layui-input-block">
+                 <textarea name="content" maxlength="100" class="layui-textarea"
+                          minlength="2" lay-verify="range|content"></textarea>
+                </textarea>
+            </div>
+        </div>
+        <div class="layui-form-item febs-hide">
+            <button class="layui-btn" lay-submit="" lay-filter="notification-update-form-submit" id="submit"></button>
+        </div>
+    </form>
+</div>
+
+<script data-th-inline="javascript">
+    layui.use(['febs', 'form',  'validate'], function () {
+        var $ = layui.$,
+            febs = layui.febs,
+            layer = layui.layer,
+            form = layui.form,
+            notification = [[${notification}]],
+            $view = $('#notification-update'),
+            validate = layui.validate;
+
+        form.verify(validate);
+        form.render();
+
+        initnotificationValue();
+
+
+
+        function initnotificationValue() {
+            form.val("notification-update-form", {
+                "title": notification.title,
+                "content": notification.content
+
+            });
+        }
+
+        form.on('submit(notification-update-form-submit)', function (data) {
+            if (febs.nativeEqual(data.field, notification)) {
+                febs.alert.warn('No modification of data！');
+                return false;
+            }
+            febs.post(ctx + 'notification/update', data.field, function () {
+                layer.closeAll();
+                febs.alert.success(notification.id + ' notification data modified successfully');
+                $('#febs-notification').find('#query').click();
+            });
+            return false;
+        });
+    });
+</script>

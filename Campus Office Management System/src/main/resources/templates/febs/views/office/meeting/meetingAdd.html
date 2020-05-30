@@ -1,0 +1,119 @@
+<style>
+    #meeting-add {
+        padding: 20px 25px 25px 0;
+    }
+    #meeting-add .layui-treeSelect .ztree li a, .ztree li span {
+        margin: 0 0 2px 3px !important;
+    }
+    .layui-form-label{
+        width: 150px;
+    }
+    .layui-input-block {
+        margin-left: 230px;
+        min-height: 36px
+    }
+</style>
+<div class="layui-fluid" id="meeting-add">
+    <form class="layui-form" action="" lay-filter="meeting-add-form">
+        <div class="layui-form-item">
+            <label class="layui-form-label febs-form-item-require">Name：</label>
+            <div class="layui-input-block">
+                <select name="persons"
+                        lay-verify="required"
+                        xm-select-direction="down"
+                        xm-select="teachers"
+                        xm-select-skin="default">
+                </select>
+
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label febs-form-item-require">date：</label>
+            <div class="layui-input-block">
+                <input type="text" name="myDate" id="meeting-createDate" placeholder="yyyy-MM-dd" class="layui-input"
+                       minlength="2" lay-verify="range|myDate">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label febs-form-item-require">time：</label>
+            <div class="layui-input-block">
+                <input type="text" name="myTime" id="meeting-createTime" placeholder="HH:mm" class="layui-input"
+                       minlength="2" lay-verify="range|myTime">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label febs-form-item-require">address：</label>
+            <div class="layui-input-block">
+                <input type="text" name="address"
+                       autocomplete="off" class="layui-input"
+                       minlength="2" lay-verify="range|address">
+            </div>
+        </div>
+        <div class="layui-form-item layui-form-text">
+            <label class="layui-form-label febs-form-item-require">description：</label>
+            <div class="layui-input-block">
+                <textarea name="description" maxlength="100" class="layui-textarea"
+                          minlength="2" lay-verify="range|description"></textarea>
+            </div>
+        </div>
+
+        <div class="layui-form-item febs-hide">
+            <button class="layui-btn" lay-submit="" lay-filter="meeting-add-form-submit" id="submit"></button>
+            <button type="reset" class="layui-btn" id="reset">redo</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    layui.use(['febs', 'form',  'validate','laydate','formSelects'], function () {
+        var $ = layui.$,
+            formSelects = layui.formSelects,
+            febs = layui.febs,
+            layer = layui.layer,
+            form = layui.form,
+            laydate = layui.laydate,
+            $view = $('#meeting-add'),
+            validate = layui.validate;
+
+        form.verify(validate);
+        form.render();
+        laydate.render({
+            elem: '#meeting-createDate'
+        });
+        laydate.render({
+            elem: '#meeting-createTime',
+            type: 'time'
+        });
+        formSelects.render();
+        formSelects.config('teachers', {
+            searchUrl: ctx + 'user/teacher',
+            response: {
+                statusCode: 200
+            },
+            beforeSuccess: function (id, url, searchVal, result) {
+                var data = result.data;
+                var tranData = [];
+                for (var i = 0; i < data.length; i++) {
+                    tranData.push({
+                        name: data[i].name,
+                        value: data[i].name
+                    })
+                }
+                result.data = tranData;
+                return result;
+            },
+            error: function (id, url, searchVal, err) {
+                console.error(err);
+                febs.alert.error('Failed to get role list');
+            }
+        });
+        form.on('submit(meeting-add-form-submit)', function (data) {
+            febs.post(ctx + 'meeting', data.field, function () {
+                layer.closeAll();
+                febs.alert.success('New meeting succeeded');
+                $('#febs-meeting').find('#query').click();
+            });
+            return false;
+        });
+    });
+</script>

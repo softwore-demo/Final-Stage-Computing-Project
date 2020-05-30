@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bysj.office.base.mapper.MeetingMapper">
+
+    <sql id="findMeetingDetailSql">
+        SELECT 	`id`,
+        `time`,
+        `address`,
+        `description`,
+        `persons`
+        FROM
+       `t_meeting`
+        WHERE 1 = 1
+        <if test="condMap.persons != null and condMap.persons != ''">
+            AND persons like #{condMap.persons}
+        </if>
+        <if test="condMap.address != null and condMap.address != ''">
+            AND condMap.address = #{condMap.address}
+        </if>
+        <if test="condMap.stDate != null ">
+            <![CDATA[
+            and time >= #{condMap.stDate}
+            ]]>
+        </if>
+        GROUP BY
+        time
+    </sql>
+    <select id="findMeetingDetailPage" parameterType="map" resultType="com.bysj.office.base.entity.Meeting">
+        <include refid="findMeetingDetailSql"/>
+    </select>
+</mapper>
